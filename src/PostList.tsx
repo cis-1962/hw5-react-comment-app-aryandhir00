@@ -1,12 +1,12 @@
 import React, {useState} from 'react';
 import Post from './Post';
 
-function PostList({ posts }: {posts: { name: string; text: string; replies: string[]}[]}) {
+function PostList({ posts }: {posts: { name: string; text: string; depth: number}[]}) {
     return (
       <div>
         {posts.map((post, index) => (
            /* eslint-disable react/no-array-index-key */
-          <Post key={index} addPost={post}/>
+          <Post name={post.name} text={post.text} depth = {post.depth}key={index}/>
         ))}
       </div>
     );

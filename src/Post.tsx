@@ -1,36 +1,82 @@
 import React, { useState } from 'react';
-import Reply from './Reply';
-import ReplyList from './ReplyList';
+import PostList from './PostList';
+import './Post.css';
 
-/* eslint-disable react/prop-types */
-function Post({ addPost }) {
-  const [name, setName] = useState('');
-  const [text, setText] = useState('');
-  const [replies, setReplies] = useState<{ name: string; text: string }[]>([]);
-  const handleAddReply = () => {
-      setReplies([...replies, { name, text }]);
-    //   setName('');
-    //   setText('');
-    // }
+interface Post {
+    name: string;
+    text: string;
+    replies: Post[];
+    depth: number;
+  }
+
+/* eslint-disable react/prop-types, @typescript-eslint/no-redeclare */
+function Post({name, text, depth} : {name: string, text: string, depth: number}) {
+  const [votes, setVotes] = useState(0);
+  const [replyName, setReplyName] = useState('');
+  const [replyText, setReplyText] = useState('');
+  const [replies, setReplies] = useState<Post[]>([]);
+  const addVotes = () => {
+    setVotes(votes+1);
+  };
+  const subtractVotes = () => {
+    setVotes(votes-1);
+  };
+  const addReply = () => {
+    if (replyText !== '' && replyName !== '' && depth < 1) {
+      const newReply: Post = {
+        name: replyName, 
+        text: replyText,
+        replies: [],
+        depth: depth + 1, 
+      };
+
+      setReplies((oldReplies) => [...oldReplies, newReply]);
+    }
+    setReplyName('');
+    setReplyText('');
   };
   return (
-    <div>
-      
+    <div style={{ marginLeft: `${depth + 30}px` }} className="post-container">
+      <div className="name-box">
+        <p className="post-name">Name: {name}</p>
+      </div>
+      <div className="text-box">
+        <p className="post-text">Text: {text}</p>
+      </div>
+      <div className="vote-buttons">
+        <button type="button" onClick={addVotes} className="vote-button">
+          Upvote
+        </button>
+        <span className="vote-count">{votes}</span>
+        <button type="button" onClick={subtractVotes} className="vote-button">
+          Downvote
+        </button>
+      </div>
+      <div className="reply-box">
         <input
           type="text"
-          placeholder="Your name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          placeholder="Enter your name"
+          value={replyName}
+          onChange={(e) => setReplyName(e.target.value)}
+          className="text-input"
         />
-        <textarea
-          placeholder="Enter your post here"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
+        <input
+          type="text"
+          placeholder="Enter your reply here"
+          value={replyText}
+          onChange={(e) => setReplyText(e.target.value)}
+          className="text-input"
         />
-        
-
-
-      <ReplyList replies={replies} />
+        <button type="submit" onClick={addReply} className="reply-button">
+          Reply
+        </button>
+      </div>
+      <div>
+        {replies.map((reply, index) => (
+          /* eslint-disable react/no-array-index-key */
+          <Post name={reply.name} text={reply.text} depth={reply.depth} key={index} />
+        ))}
+      </div>
     </div>
   );
 }
